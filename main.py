@@ -44,7 +44,6 @@ def main():
         print(f"CRITICAL ERROR: Model file '{MODEL_PATH}' not found.")
         return
 
-    # Load Model (Reduced context to prevent RAM crash)
     llm = CTransformers(
         model=MODEL_PATH,
         model_type="mistral",
@@ -63,19 +62,14 @@ def main():
         
         print("  [Thinking...]")
         
-        # --- MANUAL RAG PIPELINE (No RetrievalQA Chain needed) ---
         try:
-            # 1. Retrieve relevant docs manually
             results = db.similarity_search(query, k=2)
             context_text = "\n\n".join([doc.page_content for doc in results])
             
-            # 2. Show evidence (Proof for Professor)
             print(f"  [Evidence Found: ...{context_text[:50]}...]")
             
-            # 3. Create the Prompt
             full_prompt = SOCRATIC_TEMPLATE.format(context=context_text, question=query)
             
-            # 4. Generate Answer
             response = llm.invoke(full_prompt)
             print(f"\nTutor: {response}\n")
             
@@ -83,4 +77,5 @@ def main():
             print(f"Error: {e}")
 
 if __name__ == "__main__":
+
     main()
